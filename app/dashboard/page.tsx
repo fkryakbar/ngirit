@@ -590,7 +590,6 @@ export default function DashboardPage() {
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className="input-glass py-1.5 pl-8 pr-3 w-32 text-sm"
                                     />
-                                    <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-secondary)' }} />
                                 </div>
 
                                 {/* Type Filter */}
