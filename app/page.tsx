@@ -42,7 +42,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/dashboard');
+      router.push('/yearly');
     } catch {
       setError('Terjadi kesalahan. Silakan coba lagi.');
       setLoading(false);

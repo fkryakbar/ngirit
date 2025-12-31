@@ -16,6 +16,8 @@
   --income-light: rgba(5, 150, 105, 0.15);
   --expense: #dc2626;
   --expense-light: rgba(220, 38, 38, 0.12);
+  --invest: #6366f1;
+  --invest-light: rgba(99, 102, 241, 0.15);
   --border-glass: rgba(16, 185, 129, 0.12);
   --shadow-glass: 0 4px 20px rgba(0, 0, 0, 0.04);
   --blur-glass: 16px;
@@ -40,6 +42,8 @@
   --income-light: rgba(52, 211, 153, 0.2);
   --expense: #f87171;
   --expense-light: rgba(248, 113, 113, 0.2);
+  --invest: #818cf8;
+  --invest-light: rgba(129, 140, 248, 0.2);
   --border-glass: rgba(52, 211, 153, 0.2);
   --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.4);
   --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -319,6 +323,11 @@ body {
   color: var(--expense);
 }
 
+.badge-invest {
+  background: var(--invest-light);
+  color: var(--invest);
+}
+
 /* Chart Container - Compact */
 .chart-container {
   position: relative;
@@ -385,6 +394,61 @@ body {
   background: var(--gradient-primary);
   color: white;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+/* Bottom Navigation - Mobile Style */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-glass);
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  z-index: 1000;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .bottom-nav {
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.bottom-nav-item:hover {
+  color: var(--accent-primary);
+  background: var(--surface-hover);
+}
+
+.bottom-nav-item.active {
+  color: var(--accent-primary);
+  background: var(--income-light);
+}
+
+.bottom-nav-item.active svg {
+  transform: scale(1.1);
 }
 
 /* Loading Spinner */

@@ -1,5 +1,49 @@
 // API utilities for Ngirit
 
+// Category types
+export type TransactionCategory =
+    | 'makan'
+    | 'minum'
+    | 'transport'
+    | 'bensin'
+    | 'listrik'
+    | 'air'
+    | 'internet'
+    | 'pulsa'
+    | 'sewa'
+    | 'cicilan'
+    | 'belanja'
+    | 'kesehatan'
+    | 'pendidikan'
+    | 'hiburan'
+    | 'donasi'
+    | 'pajak'
+    | 'administrasi'
+    | 'gaji'
+    | 'honor'
+    | 'bonus'
+    | 'komisi'
+    | 'freelance'
+    | 'bisnis'
+    | 'hadiah'
+    | 'bunga'
+    | 'dividen'
+    | 'penjualan'
+    | 'refund'
+    | 'saham'
+    | 'reksadana'
+    | 'obligasi'
+    | 'emas'
+    | 'crypto'
+    | 'properti'
+    | 'deposito'
+    | 'usaha'
+    | 'peer_to_peer'
+    | 'asuransi'
+    | 'lainnya';
+
+export type TransactionType = 'income' | 'expense' | 'invest';
+
 export interface TransactionMin {
     amount: number;
     notes: string;
@@ -7,6 +51,7 @@ export interface TransactionMin {
     month: string;
     type: string;
     year?: number;
+    category?: TransactionCategory;
 }
 
 export interface StatBlock {
@@ -20,6 +65,7 @@ export interface StatBlock {
 export interface MonthData {
     income: StatBlock;
     expense: StatBlock;
+    invest: StatBlock;
 }
 
 export interface YearlyStatsResponse {
@@ -27,26 +73,31 @@ export interface YearlyStatsResponse {
     overall: {
         total_income: number;
         total_expense: number;
+        total_invest: number;
         avg_income: number;
         avg_expense: number;
+        avg_invest: number;
         min_income: TransactionMin | null;
         max_income: TransactionMin | null;
         min_expense: TransactionMin | null;
         max_expense: TransactionMin | null;
+        min_invest: TransactionMin | null;
+        max_invest: TransactionMin | null;
     };
 }
 
 export interface Transaction {
-    row_number: number;
-    message_id: number;
-    user_id: number;
-    type: 'income' | 'expense';
+    row_number?: number;
+    message_id?: number;
+    user_id?: number;
+    type: TransactionType;
     notes: string;
     amount: number;
     date: string;
     month: string;
     year: number;
-    receipt_url: string;
+    receipt_url?: string;
+    category?: TransactionCategory;
 }
 
 export interface MonthlyStatsResponse {
@@ -57,15 +108,20 @@ export interface MonthlyStatsResponse {
     statistics: {
         income: StatBlock;
         expense: StatBlock;
+        invest: StatBlock;
         overall: {
             total_income: number;
             total_expense: number;
+            total_invest: number;
             avg_income: number;
             avg_expense: number;
+            avg_invest: number;
             min_income: TransactionMin | null;
             max_income: TransactionMin | null;
             min_expense: TransactionMin | null;
             max_expense: TransactionMin | null;
+            min_invest: TransactionMin | null;
+            max_invest: TransactionMin | null;
         };
     };
     data: Transaction[];
@@ -116,18 +172,39 @@ export function formatRupiah(amount: number): string {
 }
 
 export function formatDate(dateString: string): string {
-    // Format: "25-12-2025 11:04:59" to readable format
-    const [datePart, timePart] = dateString.split(' ');
-    const [day, month, year] = datePart.split('-');
-    const date = new Date(`${year}-${month}-${day}T${timePart}`);
+    // Handle both formats: "25-12-2025 11:04:59" and "2025-01-15"
+    if (dateString.includes(' ')) {
+        // Format with time: "25-12-2025 11:04:59" or "27-12-2025 9:46:42"
+        const [datePart, timePart] = dateString.split(' ');
+        const [day, month, year] = datePart.split('-');
 
-    return new Intl.DateTimeFormat('id-ID', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    }).format(date);
+        // Normalize time part to handle times without leading zeros (e.g., "9:46:42")
+        const [hours, minutes, seconds] = timePart.split(':');
+        const normalizedTime = [
+            hours.padStart(2, '0'),
+            minutes.padStart(2, '0'),
+            seconds.padStart(2, '0')
+        ].join(':');
+
+        const date = new Date(`${year}-${month}-${day}T${normalizedTime}`);
+
+        return new Intl.DateTimeFormat('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date);
+    } else {
+        // Format without time: "2025-01-15"
+        const date = new Date(dateString);
+
+        return new Intl.DateTimeFormat('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        }).format(date);
+    }
 }
 
 export const MONTHS = [
