@@ -115,6 +115,25 @@ export default function YearlyPage() {
                     onMonthClick={handleMonthClick}
                 />
             )}
+
+            {!loading && !error && !yearlyStats && (
+                <div className="glass p-6 text-center">
+                    <p className="text-gray-500 dark:text-gray-400">Tidak ada data untuk tahun {selectedYear}</p>
+                    <div className="mt-4">
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(Number(e.target.value))}
+                            className="input-field select-glass"
+                        >
+                            {years.map((year) => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

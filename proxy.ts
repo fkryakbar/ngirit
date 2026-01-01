@@ -2,11 +2,14 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Only protect dashboard routes
-    if (pathname.startsWith('/dashboard')) {
+    // Protected routes
+    const protectedRoutes = ['/monthly', '/yearly', '/profile'];
+    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+
+    if (isProtectedRoute) {
         const token = request.cookies.get('auth-token')?.value;
 
         if (!token) {
@@ -21,13 +24,13 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // Redirect logged-in users from login page to dashboard
+    // Redirect logged-in users from login page to yearly
     if (pathname === '/') {
         const token = request.cookies.get('auth-token')?.value;
         if (token) {
             const user = await verifyToken(token);
             if (user) {
-                return NextResponse.redirect(new URL('/dashboard', request.url));
+                return NextResponse.redirect(new URL('/yearly', request.url));
             }
         }
     }
@@ -36,5 +39,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/', '/dashboard/:path*']
+    matcher: ['/', '/monthly/:path*', '/yearly/:path*', '/profile/:path*']
 };

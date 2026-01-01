@@ -110,6 +110,43 @@ function MonthlyContent() {
                     onYearChange={setSelectedYear}
                 />
             )}
+
+            {!loading && !error && !monthlyStats && (
+                <div className="glass p-6 text-center">
+                    <p className="text-gray-500 dark:text-gray-400">Tidak ada data untuk periode ini</p>
+                    <div className="mt-4 flex gap-2 justify-center flex-wrap">
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                            className="input-field select-glass"
+                        >
+                            <option value="januari">Januari</option>
+                            <option value="februari">Februari</option>
+                            <option value="maret">Maret</option>
+                            <option value="april">April</option>
+                            <option value="mei">Mei</option>
+                            <option value="juni">Juni</option>
+                            <option value="juli">Juli</option>
+                            <option value="agustus">Agustus</option>
+                            <option value="september">September</option>
+                            <option value="oktober">Oktober</option>
+                            <option value="november">November</option>
+                            <option value="desember">Desember</option>
+                        </select>
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(Number(e.target.value))}
+                            className="input-field select-glass"
+                        >
+                            {years.map((year) => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

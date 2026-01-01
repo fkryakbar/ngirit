@@ -129,7 +129,7 @@ export interface MonthlyStatsResponse {
 
 const BASE_URL = 'https://n8n-ywbawfpsgdaa.runner.web.id/webhook/ngirit';
 
-export async function fetchYearlyStats(year: number, token: string): Promise<YearlyStatsResponse> {
+export async function fetchYearlyStats(year: number, token: string): Promise<YearlyStatsResponse | null> {
     const response = await fetch(`${BASE_URL}/get-stats-by-year?year=${year}`, {
         method: 'GET',
         headers: {
@@ -142,10 +142,16 @@ export async function fetchYearlyStats(year: number, token: string): Promise<Yea
         throw new Error(`Failed to fetch yearly stats: ${response.status}`);
     }
 
-    return response.json();
+    // Handle empty response from n8n
+    const text = await response.text();
+    if (!text || text.trim() === '') {
+        return null;
+    }
+
+    return JSON.parse(text);
 }
 
-export async function fetchMonthlyStats(month: string, year: number, token: string): Promise<MonthlyStatsResponse> {
+export async function fetchMonthlyStats(month: string, year: number, token: string): Promise<MonthlyStatsResponse | null> {
     const response = await fetch(`${BASE_URL}/get-stats-by-month?month=${month}&year=${year}`, {
         method: 'GET',
         headers: {
@@ -158,7 +164,13 @@ export async function fetchMonthlyStats(month: string, year: number, token: stri
         throw new Error(`Failed to fetch monthly stats: ${response.status}`);
     }
 
-    return response.json();
+    // Handle empty response from n8n
+    const text = await response.text();
+    if (!text || text.trim() === '') {
+        return null;
+    }
+
+    return JSON.parse(text);
 }
 
 // Utility functions
