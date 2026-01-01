@@ -13,10 +13,12 @@ import {
     CategoryScale,
     LinearScale,
     BarElement,
+    ArcElement,
     Title,
     Tooltip,
     Legend
 } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import BottomNav from '@/components/dashboard/BottomNav';
 import MonthlyView from '@/components/dashboard/MonthlyView';
 
@@ -24,9 +26,11 @@ ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
+    ArcElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    ChartDataLabels
 );
 
 function MonthlyContent() {

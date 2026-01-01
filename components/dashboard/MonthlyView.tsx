@@ -1,10 +1,12 @@
 'use client';
 
-import { DollarSign, Receipt, PiggyBank, BarChart2, BarChart3, Flame, Heart, LineChart } from 'lucide-react';
+import { DollarSign, Receipt, PiggyBank, BarChart2, BarChart3, Flame, Heart, LineChart, PieChart } from 'lucide-react';
 import { formatRupiah, MONTHS, type MonthlyStatsResponse } from '@/lib/api';
 import { useChartColors } from '@/lib/useChartColors';
+import { CATEGORY_CONFIG, getCategoryConfig } from '@/lib/categoryIcons';
 import StatCard from './StatCard';
 import BarChartCard from './BarChartCard';
+import PieChartCard from './PieChartCard';
 import MinMaxCard from './MinMaxCard';
 import TransactionList from './TransactionList';
 
@@ -121,7 +123,108 @@ export default function MonthlyView({
         }
     };
 
+    // Function untuk mendapatkan data kategori (expense & invest saja)
+    const getCategoryChartData = () => {
+        if (!monthlyStats?.data || monthlyStats.data.length === 0) return null;
+
+        // Filter hanya expense dan invest
+        const filteredData = monthlyStats.data.filter(
+            transaction => transaction.type === 'expense' || transaction.type === 'invest'
+        );
+
+        if (filteredData.length === 0) return null;
+
+        // Aggregate by category
+        const categoryData: Record<string, number> = {};
+
+        filteredData.forEach(transaction => {
+            const category = transaction.category || 'lainnya';
+            if (!categoryData[category]) {
+                categoryData[category] = 0;
+            }
+            categoryData[category] += transaction.amount;
+        });
+
+        // Sort by amount descending
+        const sortedCategories = Object.entries(categoryData)
+            .sort((a, b) => b[1] - a[1]);
+
+        const labels = sortedCategories.map(([category]) => getCategoryConfig(category).label);
+        const data = sortedCategories.map(([, amount]) => amount);
+        const backgroundColors = sortedCategories.map(([category]) => getCategoryConfig(category).color);
+        const borderColors = sortedCategories.map(([category]) => getCategoryConfig(category).color);
+
+        return {
+            labels,
+            datasets: [
+                {
+                    data,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 2,
+                }
+            ]
+        };
+    };
+
+    const pieChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right' as const,
+                labels: {
+                    color: colors.legendColor,
+                    font: { size: 10, weight: 'bold' as const },
+                    padding: 10,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                }
+            },
+            tooltip: {
+                backgroundColor: colors.tooltipBg,
+                titleColor: colors.tooltipTitleColor,
+                bodyColor: colors.tooltipBodyColor,
+                titleFont: { size: 12 },
+                bodyFont: { size: 11 },
+                padding: 10,
+                cornerRadius: 6,
+                borderColor: 'rgba(16,185,129,0.2)',
+                borderWidth: 1,
+                callbacks: {
+                    label: function (context: { label?: string; parsed?: number; dataset?: { data?: number[] } }) {
+                        const label = context.label || '';
+                        const value = context.parsed || 0;
+                        const total = context.dataset?.data?.reduce((a: number, b: number) => a + b, 0) || 0;
+                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                        return `${label}: ${formatRupiah(value)} (${percentage}%)`;
+                    }
+                }
+            },
+            datalabels: {
+                color: '#ffffff',
+                font: {
+                    weight: 'bold' as const,
+                    size: 11
+                },
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formatter: (value: number, context: any) => {
+                    const dataset = context.chart.data.datasets[0];
+                    const total = dataset.data.reduce((a: number, b: number) => a + b, 0);
+                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                    // Only show label if percentage >= 5%
+                    return parseFloat(percentage) >= 5 ? `${percentage}%` : '';
+                },
+                anchor: 'center' as const,
+                align: 'center' as const,
+                textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                textShadowBlur: 4
+            }
+        }
+    };
+
     const chartData = getDailyChartData();
+    const categoryChartData = getCategoryChartData();
 
     return (
         <div className="space-y-4 animate-fade-in">
@@ -191,6 +294,16 @@ export default function MonthlyView({
                     icon={BarChart3}
                     data={chartData}
                     options={chartOptions}
+                />
+            )}
+
+            {/* Category Pie Chart */}
+            {categoryChartData && (
+                <PieChartCard
+                    title="Distribusi Kategori (Expense & Investasi)"
+                    icon={PieChart}
+                    data={categoryChartData}
+                    options={pieChartOptions}
                 />
             )}
 
